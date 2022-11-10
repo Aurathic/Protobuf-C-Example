@@ -1,21 +1,29 @@
+The following code is taken from https://code.google.com/archive/p/protobuf-c/wikis/Examples.wiki and rewritten in properly formatted Markdown. 
+
+---
+
 ## Introduction
 
 Examples of using protobuf-c.
 
-protobuf-c works by taking a .proto file (which is defined by google's Protocol Buffers library), and generating both .h and .c files for use in C programs.
+protobuf-c works by taking a `.proto` file (which is defined by google's Protocol Buffers library), and generating both `.h` and `.c` files for use in C programs.
 
-Warning (insert guy shoveling pic): this page is partial, incomplete and the code is untested. Eventually I plan to make an "examples" directory in the .tar.gz so you don't need to cut-n-paste.
-Simple complete example
+**Warning : this page is partial, incomplete and the code is untested. Eventually I plan to make an "examples" directory in the .tar.gz so you don't need to cut-n-paste.**
 
-A simple file, amessage.proto file following the language guide: 
-```
+## Simple complete example
+
+A simple file, `amessage.proto` file following the language guide: 
+```protobuf
 message AMessage { 
     required int32 a=1; 
     optional int32 b=2; 
 }
 ```
 
-Generate .h and .c files from the command-line in your current working directory: protoc-c --c_out=. amessage.proto
+Generate `.h` and `.c` files from the command-line in your current working directory: 
+```
+protoc-c --c_out=. amessage.proto
+```
 
 Serialize/pack the AMessage as follows: 
 ```c
@@ -51,10 +59,10 @@ int main (int argc, const char * argv[]) {
 ``` 
 
 I left most error handling out for brevity. Notice: 
-* the use of the A_MESSAGE__INIT macro to construct the message 
-* the has_b member corresponds to the optional b field -- required fields do not have a has_ member. 
-* amessage__get_packed_size returns the length of the packed data. 
-* a_message__pack serializes the message.
+* the use of the `A_MESSAGE__INIT` macro to construct the message 
+* the `has_b` member corresponds to the optional `b` field -- required fields do not have a `has_` member. 
+* `amessage__get_packed_size` returns the length of the packed data. 
+* `a_message__pack` serializes the message.
 
 On the other hand, to deserialize/unpack a message, try code like this: 
 ```c
@@ -81,7 +89,8 @@ int main (int argc, const char * argv[]) {
     uint8_t buf[MAX_MSG_SIZE]; 
     size_t msg_len = read_buffer (MAX_MSG_SIZE, buf);
 
-    // Unpack the message using protobuf-c. msg = amessage__unpack(NULL, msg_len, buf);
+    // Unpack the message using protobuf-c. 
+    msg = amessage__unpack(NULL, msg_len, buf);
     if (msg == NULL) { 
         fprintf(stderr, "error unpacking incoming message\n"); 
         exit(1); 
@@ -99,12 +108,19 @@ int main (int argc, const char * argv[]) {
 } 
 ``` 
 
-During linking each above program, make sure to include '-lprotobuf-c'
+During linking each above program, make sure to include `-lprotobuf-c`
 
-Test by piping one program into the next at command line: ./amessage_serialize 10 2 | ./amessage_deserialize Writing: 4 serialized bytes Received: a=10 b=2
-Repeated Fields
+Test by piping one program into the next at command line: 
+```
+./amessage_serialize 10 2 | ./amessage_deserialize Writing: 4 serialized bytes Received: a=10 b=2
+```
 
-Here is a simple file, cmessage.proto file: message CMessage { repeated int32 c=1; }
+## Repeated Fields
+
+Here is a simple file, `cmessage.proto` file: 
+```protobuf
+message CMessage { repeated int32 c=1; }
+```
 
 Serialize/pack the CMessage as follows: 
 ```c
@@ -132,9 +148,10 @@ int main (int argc, const char * argv[]) {
 
 } 
 ```
+
 I left most error handling out for brevity. Notice: 
-* the use of the C_MESSAGE__INIT macro to construct the message 
-* the n_XXX member is generated for a repeated field XXX.
+* the use of the `C_MESSAGE__INIT` macro to construct the message 
+* the `n_XXX` member is generated for a repeated field `XXX`.
 
 On the other hand, if you want to deserialize/unpack a message, try code like this: 
 ```c
@@ -165,14 +182,16 @@ int main (int argc, const char * argv[]) {
 } 
 ```
 Test by piping one program into the next at command line: 
-``` ./cmessage_serialize 12 3 4 | ./cmessage_deserialize Writing: 6 serialized bytes 12, 3, 4 ```
+``` 
+./cmessage_serialize 12 3 4 | ./cmessage_deserialize Writing: 6 serialized bytes 12, 3, 4 
+```
 Strings
 
 ## TODO Bytes
 
 ## TODO Constructing Submessages
 
-Here is a simple file, dmessage.proto file: 
+Here is a simple file, `dmessage.proto` file: 
 ```protobuf
 message Submessage { 
     required int32 value=1; 
@@ -184,7 +203,7 @@ message DMessage {
 } 
 ```
 
-Here DMessage consists of one or two integers (a is one int and required; b is one int and optional).
+Here DMessage consists of one or two integers (`a` is one int and required; `b` is one int and optional).
 
 ```c
 include "dmessage.pb-c.h"
@@ -219,7 +238,7 @@ int main (int argc, const char * argv[]) {
 } 
 ```
 Notice: 
-* there is no has_ flag for optional submessages -- if the pointer is non-NULL, then we assume that it is a value.
+* there is no `has_` flag for optional submessages -- if the pointer is non-`NULL`, then we assume that it is a value.
 
 On the other hand, if you want to deserialize/unpack a message, try code like this: 
 ```c
@@ -265,12 +284,12 @@ Test by piping one program into the next at command line:
 ## Constructing Repeated Submessages
 
 Here is a simple file, emessage.proto file: 
-``` 
+```protobuf
 message Submessage { required int32 value=1; }
 message EMessage { repeated Submessage a=1; } 
 ```
 
-Here DMessage consists of one or two integers (a is one int and required; b is one int and optional).
+Here DMessage consists of one or two integers (`a` is one int and required; `b` is one int and optional).
 
 ```c
 include "dmessage.pb-c.h"
@@ -294,11 +313,10 @@ int main (int argc, const char * argv[]) {
 
     for (i = 1; i < argc; i++) free (subs[i]); free (subs); return 0; } 
 ``` 
-Notice that repeated fields create two fields, in this case n_a, the number of submessages, and a the submessages themselves. Also note that a is an array of pointers to messages.
+Notice that repeated fields create two fields, in this case `n_a`, the number of submessages, and a the submessages themselves. Also note that `a` is an array of pointers to messages.
 
 On the other hand, if you want to deserialize/unpack a message, try code like this: 
 ```c
-include
 include "emessage.pb-c.h"
 define MAX_MSG_SIZE 4096
 
@@ -335,9 +353,12 @@ Test by piping one program into the next at command line:
 ```
 
 ## Using the Allocator
-Packing with an Append Function
-Language Binding Hints
-Protobuf-C For Embedded Developers (and other cross compilers)
+
+## Packing with an Append Function
+
+## Language Binding Hints
+
+## Protobuf-C For Embedded Developers (and other cross compilers)
 
 TODO: move these general comments to a new page and provide an example, as promised by the page title.
 
