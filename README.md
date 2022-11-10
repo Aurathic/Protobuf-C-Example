@@ -112,7 +112,11 @@ During linking each above program, make sure to include `-lprotobuf-c`
 
 Test by piping one program into the next at command line: 
 ```
-./amessage_serialize 10 2 | ./amessage_deserialize Writing: 4 serialized bytes Received: a=10 b=2
+./amessage_serialize 10 2 | ./amessage_deserialize 
+```
+```
+Writing: 4 serialized bytes 
+Received: a=10 b=2
 ```
 
 ## Repeated Fields
@@ -183,7 +187,11 @@ int main (int argc, const char * argv[]) {
 ```
 Test by piping one program into the next at command line: 
 ``` 
-./cmessage_serialize 12 3 4 | ./cmessage_deserialize Writing: 6 serialized bytes 12, 3, 4 
+./cmessage_serialize 12 3 4 | ./cmessage_deserialize 
+```
+```
+Writing: 6 serialized bytes 
+12, 3, 4 
 ```
 Strings
 
@@ -279,7 +287,20 @@ int main (int argc, const char * argv[]) {
 ```
 
 Test by piping one program into the next at command line: 
-```./dmessage_serialize 4 5 | ./dmessage_deserialize Writing: 8 serialized bytes Received: a=4 b=5 ./dmessage_serialize 4 | ./dmessage_deserialize Writing: 4 serialized bytes Received: a=4 ```
+```
+./dmessage_serialize 4 5 | ./dmessage_deserialize 
+```
+```
+Writing: 8 serialized bytes 
+Received: a=4 b=5 
+```
+```
+./dmessage_serialize 4 | ./dmessage_deserialize 
+```
+```
+Writing: 4 serialized bytes 
+Received: a=4 
+```
 
 ## Constructing Repeated Submessages
 
@@ -304,7 +325,11 @@ int main (int argc, const char * argv[]) {
         submessage__init (subs[i-1]); 
         subs[i-1]->value = atoi(argv[i]); 
     }
-    msg.n_a = argc-1; msg.a = subs; len = emessage__get_packed_size (&msg); // This is the calculated packing length buf = malloc (len); // Allocate memory emessage__pack (&msg, buf); // Pack msg, including submessages
+    msg.n_a = argc-1; 
+    msg.a = subs; 
+    len = emessage__get_packed_size (&msg); // This is the calculated packing length 
+    buf = malloc (len); // Allocate memory 
+    emessage__pack (&msg, buf); // Pack msg, including submessages
 
     fprintf(stderr,"Writing %d serialized bytes\n",len); // See the length of message
     fwrite (buf, len, 1, stdout);           // Write to stdout to allow direct command line piping
@@ -349,7 +374,14 @@ return 0;
 ```
 Test by piping one program into the next at command line: 
 ```
-./emessage_serialize 4 5 | ./emessage_deserialize Writing: 8 serialized bytes 4 5 ./emessage_serialize 4 5 8| ./emessage_deserialize 4 5 8 
+./emessage_serialize 4 5 | ./emessage_deserialize 
+```
+```
+Writing: 8 serialized bytes 
+4 5 
+```
+```
+./emessage_serialize 4 5 8| ./emessage_deserialize 4 5 8 
 ```
 
 ## Using the Allocator
@@ -363,11 +395,11 @@ Test by piping one program into the next at command line:
 TODO: move these general comments to a new page and provide an example, as promised by the page title.
 
 Most embedded developers need to compile protobuf-c twice: 
-1. they need a copy of protoc-c that runs on their build environment (the build environment is for the machine on which they develop the application. 
-2. they need to have a copy of libprotobuf-c, which is the runtime library, that is compiled for the embedded platform (which we will call the target environment).
+1. they need a copy of **protoc-c** that runs on their build environment (the build environment is for the machine on which they develop the application. 
+2. they need to have a copy of **libprotobuf-c**, which is the runtime library, that is compiled for the embedded platform (which we will call the target environment).
 
-For (1), you need to install the main protobuf package, since protoc-c uses its parser and code generator libraries. Running 'configure' as usual should be fine.
+For (1), you need to install the main protobuf package, since protoc-c uses its parser and code generator libraries. Running `configure` as usual should be fine.
 
-For (2), you can configure with --disable-protoc which means you won't have to build the main protobuf package for the embedded platform (since you don't need to do code gen on the embedded platform). The usual details of cross-compilation for your specific embedded platform apply. Sometimes merely providing the name of the platform to configure suffices (as in, ./configure atmel)-- but other environments need a mass of overrides like CC=atmel-cc LD=atmel-ld.
+For (2), you can configure with `--disable-protoc` which means you won't have to build the main protobuf package for the embedded platform (since you don't need to do code gen on the embedded platform). The usual details of cross-compilation for your specific embedded platform apply. Sometimes merely providing the name of the platform to configure suffices (as in, `./configure atmel`)-- but other environments need a mass of overrides like `CC=atmel-cc LD=atmel-ld`.
 
-If embedded developers do not modify the .proto files, then then all they really need are the generated .pb-c.ch files, and then they can skip (1).
+If embedded developers do not modify the `.proto` files, then then all they really need are the generated .`pb-c.ch` files, and then they can skip (1).
